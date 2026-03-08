@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ditanshi Desai | ECE Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;600&family=Syne:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #03050a;
+            --panel: #080d16;
+            --accent: #00f7ff;
+            --accent2: #7b2fff;
+            --gold: #f0c040;
+            --accent-glow: rgba(0, 247, 255, 0.25);
+            --text: #dce8f5;
+            --muted: #7a91a8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; cursor: none; }
+
+        .cursor { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); box-shadow: 0 0 12px var(--accent); }
+        .cursor-ring { width: 36px; height: 36px; border: 1px solid rgba(0,247,255,0.5); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform 0.12s ease-out; }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: 0; }
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 48px; position: relative; z-index: 1; }
+
+        header { height: 100vh; display: grid; grid-template-columns: 1.1fr 0.9fr; align-items: center; gap: 60px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .hero-label { font-family: 'IBM Plex Mono', monospace; color: var(--accent); font-size: 0.72rem; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+        .hero-label::before { content: ''; width: 30px; height: 1px; background: var(--accent); }
+        h1 { font-family: 'Orbitron', monospace; font-size: 3.8rem; font-weight: 900; color: #fff; letter-spacing: -1px; line-height: 1.05; margin-bottom: 6px; }
+        .name-accent { color: var(--accent); }
+        .typewriter-wrap { font-family: 'IBM Plex Mono', monospace; color: var(--gold); font-size: 0.85rem; letter-spacing: 2px; min-height: 1.4em; margin: 18px 0; }
+        .cursor-blink { animation: blink 0.9s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .hero-bio { color: var(--muted); font-size: 1rem; line-height: 1.8; max-width: 480px; margin-bottom: 32px; }
+        .hero-bio strong { color: var(--text); font-weight: 600; }
+
+        .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 26px; background: transparent; border: 1px solid var(--accent); color: var(--accent); text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 2px; border-radius: 3px; transition: 0.3s; cursor: none; }
+        .btn:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 30px var(--accent-glow); }
+        .btn svg { transition: transform 0.3s; flex-shrink: 0; }
+        .btn:hover svg { transform: translateX(4px); }
+        .btn-ghost { border-color: rgba(0,247,255,0.35); color: var(--muted); }
+        .btn-ghost:hover { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
+        .hero-visual { display: flex; justify-content: center; align-items: center; position: relative; }
+        .robot-scene { position: relative; width: 280px; height: 340px; }
+        .robot-scene::before { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 60px; background: radial-gradient(ellipse, rgba(0,247,255,0.18) 0%, transparent 70%); border-radius: 50%; }
+        .robot-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 20px rgba(0,247,255,0.3)); }
+        .eye-glow { animation: eyePulse 2.5s ease-in-out infinite; }
+        @keyframes eyePulse { 0%,100%{opacity:0.7;} 50%{opacity:1;filter:brightness(1.6);} }
+        .robot-float { animation: float 4s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);} }
+        .arm-right { transform-origin: 200px 155px; animation: wave 3s ease-in-out infinite; }
+        @keyframes wave { 0%,100%{transform:rotate(0deg);} 25%{transform:rotate(12deg);} 75%{transform:rotate(-8deg);} }
+        .orbit-ring { position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:320px; height:320px; border:1px dashed rgba(0,247,255,0.15); border-radius:50%; animation:spin 20s linear infinite; }
+        @keyframes spin { to{ transform:translate(-50%,-50%) rotate(360deg); } }
+        .orbit-dot { position:absolute; top:-5px; left:50%; transform:translateX(-50%); width:8px; height:8px; background:var(--accent); border-radius:50%; box-shadow:0 0 12px var(--accent); }
+        .signal-line { position:absolute; top:60px; right:-30px; }
+        .signal-arc { fill:none; stroke:var(--accent); stroke-width:1.5; opacity:0; animation:signalFade 2s ease-out infinite; }
+        .signal-arc:nth-child(1){animation-delay:0s;} .signal-arc:nth-child(2){animation-delay:0.4s;} .signal-arc:nth-child(3){animation-delay:0.8s;}
+        @keyframes signalFade { 0%{opacity:1;transform:scale(0.6);} 100%{opacity:0;transform:scale(1.6);} }
+
+        section { padding: 120px 0; }
+        .section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 60px; }
+        .section-tag { font-family: 'IBM Plex Mono', monospace; color: var(--accent); font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase; white-space: nowrap; }
+        .section-line { flex:1; height:1px; background:linear-gradient(90deg, rgba(0,247,255,0.3), transparent); }
+
+        .antenna-section { background: var(--panel); border:1px solid rgba(0,247,255,0.08); border-radius:16px; padding:70px 60px; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; position:relative; overflow:hidden; }
+        .antenna-section::before { content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; background:radial-gradient(circle, rgba(123,47,255,0.12) 0%, transparent 70%); border-radius:50%; }
+        .antenna-info h2 { font-family:'Orbitron',monospace; font-size:1.8rem; color:#fff; margin-bottom:16px; font-weight:700; }
+        .antenna-info p { color:var(--muted); line-height:1.8; margin-bottom:16px; }
+        .spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:24px; }
+        .spec-item { background:rgba(0,247,255,0.04); border:1px solid rgba(0,247,255,0.1); border-radius:6px; padding:12px 16px; }
+        .spec-label { font-family:'IBM Plex Mono',monospace; font-size:0.62rem; color:var(--accent); letter-spacing:2px; display:block; margin-bottom:4px; }
+        .spec-value { font-family:'IBM Plex Mono',monospace; font-size:0.95rem; color:#fff; font-weight:600; }
+        .antenna-visual-wrap { display:flex; justify-content:center; align-items:center; }
+
+        .patch-svg { filter:drop-shadow(0 0 16px rgba(0,247,255,0.2)); cursor:none; transition: filter 0.3s; }
+        .rad-ring { fill:none; stroke:var(--accent); stroke-width:0.8; opacity:0; transform-origin:160px 110px; animation:radiate 3s ease-out infinite; }
+        .rad-ring:nth-child(1){animation-delay:0s;} .rad-ring:nth-child(2){animation-delay:0.7s;} .rad-ring:nth-child(3){animation-delay:1.4s;}
+        @keyframes radiate { 0%{opacity:0.9;transform:scale(0.5);} 100%{opacity:0;transform:scale(2.4);} }
+        .rad-ring-hover { fill:none; stroke:#00f7ff; stroke-width:1.4; opacity:0; transform-origin:160px 110px; }
+        .patch-svg.active .rad-ring-hover { animation: radiateHover 1s ease-out infinite; }
+        .rad-ring-hover:nth-child(1){} .rad-ring-hover:nth-child(2){ animation-delay:0.25s !important; } .rad-ring-hover:nth-child(3){ animation-delay:0.5s !important; } .rad-ring-hover:nth-child(4){ animation-delay:0.75s !important; }
+        @keyframes radiateHover { 0%{opacity:1;transform:scale(0.3);} 100%{opacity:0;transform:scale(3.2);} }
+        .feed-pulse { animation:feedFlow 1.5s linear infinite; }
+        @keyframes feedFlow { 0%{stroke-dashoffset:0;} 100%{stroke-dashoffset:-30;} }
+
+        .projects-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+        .card { background:var(--panel); border:1px solid rgba(255,255,255,0.04); border-radius:10px; padding:36px 32px; position:relative; transition:0.4s cubic-bezier(0.4,0,0.2,1); overflow:hidden; cursor:none; }
+        .card::after { content:''; position:absolute; bottom:0; left:0; width:100%; height:2px; background:linear-gradient(90deg, var(--accent), var(--accent2)); transform:scaleX(0); transform-origin:left; transition:transform 0.4s; }
+        .card:hover { border-color:rgba(0,247,255,0.25); transform:translateY(-8px); background:#0d1520; }
+        .card:hover::after { transform:scaleX(1); }
+        .card-num { font-family:'Orbitron',monospace; font-size:2.5rem; font-weight:900; color:rgba(0,247,255,0.06); position:absolute; top:20px; right:24px; line-height:1; }
+        .card-tag { font-family:'IBM Plex Mono',monospace; font-size:0.65rem; color:var(--accent); letter-spacing:3px; text-transform:uppercase; margin-bottom:14px; display:block; }
+        .card h3 { color:#fff; font-size:1.05rem; margin-bottom:12px; font-weight:600; }
+        .card p { color:var(--muted); font-size:0.86rem; line-height:1.7; }
+        .card-tech { margin-top:16px; display:flex; flex-wrap:wrap; gap:6px; }
+        .tech-pill { font-family:'IBM Plex Mono',monospace; font-size:0.6rem; letter-spacing:1px; color:rgba(0,247,255,0.7); background:rgba(0,247,255,0.06); border:1px solid rgba(0,247,255,0.15); border-radius:3px; padding:3px 8px; }
+
+        .exp-card { background:var(--panel); border:1px solid rgba(255,255,255,0.04); border-left:2px solid var(--accent); border-radius:0 10px 10px 0; padding:36px 40px; margin-bottom:24px; transition:0.3s; }
+        .exp-card:hover { background:#0d1520; }
+        .exp-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+        .exp-title { font-size:1.1rem; font-weight:600; color:#fff; margin-bottom:4px; }
+        .exp-company { font-family:'IBM Plex Mono',monospace; font-size:0.75rem; color:var(--accent); letter-spacing:1px; }
+        .exp-date { font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--muted); letter-spacing:1px; white-space:nowrap; }
+        .exp-bullets { list-style:none; margin-top:14px; }
+        .exp-bullets li { color:var(--muted); font-size:0.87rem; line-height:1.7; padding-left:18px; position:relative; margin-bottom:8px; }
+        .exp-bullets li::before { content:'▸'; position:absolute; left:0; color:var(--accent); font-size:0.7rem; top:3px; }
+        .exp-bullets li strong { color:var(--text); }
+
+        .skills-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+        .skill-header { display:flex; justify-content:space-between; margin-bottom:8px; }
+        .skill-name { font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--text); letter-spacing:1px; }
+        .skill-pct { font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--accent); }
+        .skill-bar { height:3px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+        .skill-fill { height:100%; background:linear-gradient(90deg, var(--accent), var(--accent2)); border-radius:2px; width:0%; transition:width 1.4s cubic-bezier(0.4,0,0.2,1); }
+
+        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.04); border-radius:12px; overflow:hidden; margin:80px 0; }
+        .stat-cell { background:var(--panel); padding:36px 24px; text-align:center; }
+        .stat-num { font-family:'Orbitron',monospace; font-size:2.2rem; font-weight:900; color:var(--accent); display:block; line-height:1; margin-bottom:8px; }
+        .stat-label { font-family:'IBM Plex Mono',monospace; font-size:0.62rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+
+        .certs-row { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+        .cert-item { background:var(--panel); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:24px 28px; transition:0.3s; }
+        .cert-item:hover { border-color:rgba(0,247,255,0.2); }
+        .cert-org { font-family:'IBM Plex Mono',monospace; font-size:0.65rem; color:var(--accent); letter-spacing:3px; margin-bottom:8px; display:block; }
+        .cert-name { font-size:0.9rem; color:var(--text); font-weight:600; margin-bottom:6px; }
+        .cert-date { font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--muted); }
+
+        .achievement-card { background: linear-gradient(135deg, rgba(240,192,64,0.06), rgba(123,47,255,0.06)); border:1px solid rgba(240,192,64,0.2); border-radius:12px; padding:40px 48px; display:flex; gap:40px; align-items:center; }
+        .ach-badge { font-size:2.8rem; min-width:60px; text-align:center; }
+        .ach-title { font-size:1.1rem; color:#fff; font-weight:600; margin-bottom:8px; }
+        .ach-desc { color:var(--muted); font-size:0.88rem; line-height:1.7; }
+        .ach-tag { font-family:'IBM Plex Mono',monospace; font-size:0.65rem; color:var(--gold); letter-spacing:2px; margin-bottom:8px; display:block; }
+
+        footer { padding:80px 0 60px; border-top:1px solid rgba(255,255,255,0.04); display:flex; justify-content:space-between; align-items:center; }
+        .footer-name { font-family:'Orbitron',monospace; font-size:1rem; color:var(--accent); font-weight:700; }
+        .footer-sub { font-family:'IBM Plex Mono',monospace; font-size:0.65rem; color:var(--muted); margin-top:6px; letter-spacing:2px; }
+        .footer-links { display:flex; gap:24px; }
+        .footer-links a { font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+        .footer-links a:hover { color:var(--accent); }
+
+        @media (max-width:900px) {
+            header { grid-template-columns:1fr; text-align:center; height:auto; padding:100px 0 60px; gap:50px; }
+            h1 { font-size:2.8rem; }
+            .hero-bio { margin:0 auto 32px; }
+            .hero-label, .hero-btns { justify-content:center; }
+            .antenna-section { grid-template-columns:1fr; gap:50px; padding: 40px 30px; }
+            .projects-grid { grid-template-columns:1fr; }
+            .stats-row { grid-template-columns:1fr 1fr; }
+            .skills-grid { grid-template-columns:1fr; }
+            .certs-row { grid-template-columns:1fr; }
+            footer { flex-direction:column; gap:24px; text-align:center; }
+            .achievement-card { flex-direction:column; text-align:center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="container">
+
+    <!-- HERO -->
+    <header>
+        <div class="hero-text">
+            <div class="hero-label">ECE Portfolio</div>
+            <h1>DITANSHI<br><span class="name-accent">DESAI</span></h1>
+            <div class="typewriter-wrap"><span id="tw-text"></span><span class="cursor-blink">_</span></div>
+            <p class="hero-bio">
+                B.Tech in <strong>Electronics &amp; Communication Engineering</strong> at PDEU. Specializing in high-frequency <strong>RF systems</strong>, <strong>embedded IoT</strong>, and <strong>intelligent robotics</strong> — with a 9.22 CGPA.
+            </p>
+            <div class="hero-btns">
+                <a href="mailto:ditanshidesai18@gmail.com" class="btn">
+                    INITIALIZE CONTACT
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13M13 7L8 2M13 7L8 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+                <a href="https://linkedin.com/in/ditanshi-desai" class="btn btn-ghost" target="_blank">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                    LINKEDIN
+                </a>
+                <a href="https://github.com/DitanshiDesai/ditanshi-desai" class="btn btn-ghost" target="_blank">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    GITHUB
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="robot-scene">
+                <div class="orbit-ring"><div class="orbit-dot"></div></div>
+                <svg class="signal-line" width="60" height="60" viewBox="0 0 60 60">
+                    <path class="signal-arc" d="M10,30 A20,20 0 0,1 50,30"/>
+                    <path class="signal-arc" d="M5,30 A25,25 0 0,1 55,30"/>
+                    <path class="signal-arc" d="M0,30 A30,30 0 0,1 60,30"/>
+                </svg>
+                <svg class="robot-svg" viewBox="0 0 280 340" fill="none">
+                    <defs>
+                        <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        <filter id="eyeGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#111d2e"/><stop offset="100%" stop-color="#081422"/></linearGradient>
+                        <linearGradient id="headGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2d45"/><stop offset="100%" stop-color="#0d1f35"/></linearGradient>
+                    </defs>
+                    <g class="robot-float">
+                        <line x1="140" y1="40" x2="140" y2="18" stroke="#00f7ff" stroke-width="2"/>
+                        <circle cx="140" cy="14" r="5" fill="#00f7ff" filter="url(#glow)" class="eye-glow"/>
+                        <circle cx="140" cy="14" r="9" fill="none" stroke="#00f7ff" stroke-width="0.8" opacity="0.4" class="eye-glow"/>
+                        <rect x="90" y="40" width="100" height="80" rx="12" fill="url(#headGrad)" stroke="#1e3a5a" stroke-width="1.5"/>
+                        <line x1="90" y1="65" x2="190" y2="65" stroke="#1e3a5a" stroke-width="0.8"/>
+                        <rect x="105" y="72" width="28" height="22" rx="5" fill="#000d1a" stroke="#00f7ff" stroke-width="1"/>
+                        <rect x="147" y="72" width="28" height="22" rx="5" fill="#000d1a" stroke="#00f7ff" stroke-width="1"/>
+                        <circle id="eyeL" cx="119" cy="83" r="7" fill="#00f7ff" filter="url(#eyeGlow)" class="eye-glow"/>
+                        <circle id="eyeR" cx="161" cy="83" r="7" fill="#00f7ff" filter="url(#eyeGlow)" class="eye-glow"/>
+                        <circle cx="119" cy="83" r="4" fill="#001a2e"/>
+                        <circle cx="161" cy="83" r="4" fill="#001a2e"/>
+                        <circle cx="121" cy="81" r="1.5" fill="#fff" opacity="0.8"/>
+                        <circle cx="163" cy="81" r="1.5" fill="#fff" opacity="0.8"/>
+                        <rect x="112" y="102" width="56" height="10" rx="3" fill="#000d1a" stroke="#1e3a5a" stroke-width="1"/>
+                        <line x1="118" y1="104" x2="118" y2="110" stroke="#00f7ff" stroke-width="1" opacity="0.6"/>
+                        <line x1="126" y1="104" x2="126" y2="110" stroke="#00f7ff" stroke-width="1" opacity="0.4"/>
+                        <line x1="134" y1="104" x2="134" y2="110" stroke="#00f7ff" stroke-width="1" opacity="0.7"/>
+                        <line x1="142" y1="104" x2="142" y2="110" stroke="#00f7ff" stroke-width="1" opacity="0.5"/>
+                        <line x1="150" y1="104" x2="150" y2="110" stroke="#00f7ff" stroke-width="1" opacity="0.8"/>
+                        <line x1="158" y1="104" x2="158" y2="110" stroke="#00f7ff" stroke-width="1" opacity="0.4"/>
+                        <rect x="125" y="120" width="30" height="16" rx="3" fill="#0d1f35" stroke="#1e3a5a" stroke-width="1"/>
+                        <rect x="70" y="136" width="140" height="110" rx="14" fill="url(#bodyGrad)" stroke="#1e3a5a" stroke-width="1.5"/>
+                        <rect x="90" y="150" width="100" height="70" rx="8" fill="#050e1c" stroke="#0d2a45" stroke-width="1"/>
+                        <rect x="96" y="156" width="88" height="52" rx="5" fill="#000c1a"/>
+                        <polyline points="100,182 108,170 115,194 122,166 129,186 136,174 143,182 150,178 157,188 164,172 171,182 178,176" fill="none" stroke="#00f7ff" stroke-width="1.5" opacity="0.9"/>
+                        <text x="100" y="200" font-family="IBM Plex Mono" font-size="6" fill="#00f7ff" opacity="0.6">60GHz · ECE · RF</text>
+                        <circle cx="82" cy="175" r="6" fill="#000" stroke="#00f7ff" stroke-width="1"/>
+                        <circle cx="82" cy="175" r="3" fill="#00f7ff" opacity="0.8" class="eye-glow"/>
+                        <circle cx="198" cy="175" r="6" fill="#000" stroke="#7b2fff" stroke-width="1"/>
+                        <circle cx="198" cy="175" r="3" fill="#7b2fff" opacity="0.8"/>
+                        <rect x="30" y="140" width="36" height="90" rx="10" fill="url(#bodyGrad)" stroke="#1e3a5a" stroke-width="1.5"/>
+                        <rect x="34" y="160" width="28" height="4" rx="2" fill="#1e3a5a"/>
+                        <rect x="34" y="168" width="28" height="4" rx="2" fill="#1e3a5a"/>
+                        <rect x="34" y="228" width="28" height="22" rx="8" fill="#0d1f35" stroke="#1e3a5a" stroke-width="1.5"/>
+                        <g class="arm-right">
+                            <rect x="214" y="140" width="36" height="90" rx="10" fill="url(#bodyGrad)" stroke="#1e3a5a" stroke-width="1.5"/>
+                            <rect x="218" y="160" width="28" height="4" rx="2" fill="#1e3a5a"/>
+                            <rect x="218" y="168" width="28" height="4" rx="2" fill="#1e3a5a"/>
+                            <rect x="218" y="228" width="28" height="22" rx="8" fill="#0d1f35" stroke="#1e3a5a" stroke-width="1.5"/>
+                        </g>
+                        <rect x="95" y="246" width="38" height="72" rx="10" fill="url(#bodyGrad)" stroke="#1e3a5a" stroke-width="1.5"/>
+                        <rect x="147" y="246" width="38" height="72" rx="10" fill="url(#bodyGrad)" stroke="#1e3a5a" stroke-width="1.5"/>
+                        <rect x="88" y="310" width="52" height="20" rx="8" fill="#0d1f35" stroke="#1e3a5a" stroke-width="1.5"/>
+                        <rect x="140" y="310" width="52" height="20" rx="8" fill="#0d1f35" stroke="#1e3a5a" stroke-width="1.5"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-cell"><span class="stat-num">9.22</span><span class="stat-label">CGPA</span></div>
+        <div class="stat-cell"><span class="stat-num">60</span><span class="stat-label">GHz mmWave</span></div>
+        <div class="stat-cell"><span class="stat-num">15dB</span><span class="stat-label">Sidelobe Reduction</span></div>
+        <div class="stat-cell"><span class="stat-num">50&#8486;</span><span class="stat-label">Matched Impedance</span></div>
+    </div>
+
+    <!-- RF SECTION WITH INTERACTIVE ANTENNA -->
+    <section>
+        <div class="section-header">
+            <span class="section-tag">// RF_ENGINEERING</span>
+            <div class="section-line"></div>
+        </div>
+        <div class="antenna-section">
+            <div class="antenna-info">
+                <h2>Microstrip Patch<br>Antenna Design</h2>
+                <p>Designing high-gain V-band antennas for next-gen 5G/6G wireless at 60 GHz. COMSOL Multiphysics FEM simulation models electromagnetic behavior and optimizes radiation performance in the mmWave spectrum.</p>
+                <p>Modeled microstrip patch in CST Studio Suite achieving &#8211;18 dB return loss at 2.4 GHz. VNA S-parameter measurements on 5+ RF components improved matching network efficiency by 30%.</p>
+                <div class="spec-grid">
+                    <div class="spec-item"><span class="spec-label">FREQUENCY</span><span class="spec-value">60 GHz</span></div>
+                    <div class="spec-item"><span class="spec-label">RETURN LOSS</span><span class="spec-value">&#8211;18 dB</span></div>
+                    <div class="spec-item"><span class="spec-label">BANDWIDTH</span><span class="spec-value">250 MHz</span></div>
+                    <div class="spec-item"><span class="spec-label">IMPEDANCE</span><span class="spec-value">50 &#8486;</span></div>
+                </div>
+            </div>
+            <div class="antenna-visual-wrap">
+                <svg class="patch-svg" id="patchSvg" width="320" height="280" viewBox="0 0 320 280">
+                    <defs>
+                        <linearGradient id="substrateGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#1a3a5c"/><stop offset="100%" stop-color="#0d2540"/>
+                        </linearGradient>
+                        <linearGradient id="patchGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#d4a820"/><stop offset="100%" stop-color="#a07010"/>
+                        </linearGradient>
+                    </defs>
+                    <text x="160" y="16" font-family="IBM Plex Mono" font-size="7.5" fill="rgba(0,247,255,0.35)" text-anchor="middle">[ HOVER TO RADIATE ]</text>
+                    <!-- idle rings -->
+                    <ellipse cx="160" cy="110" rx="42" ry="30" class="rad-ring" style="animation-delay:0s"/>
+                    <ellipse cx="160" cy="110" rx="42" ry="30" class="rad-ring" style="animation-delay:0.7s"/>
+                    <ellipse cx="160" cy="110" rx="42" ry="30" class="rad-ring" style="animation-delay:1.4s"/>
+                    <!-- hover rings -->
+                    <ellipse cx="160" cy="110" rx="42" ry="30" class="rad-ring-hover"/>
+                    <ellipse cx="160" cy="110" rx="42" ry="30" class="rad-ring-hover" style="animation-delay:0.25s"/>
+                    <ellipse cx="160" cy="110" rx="42" ry="30" class="rad-ring-hover" style="animation-delay:0.5s"/>
+                    <ellipse cx="160" cy="110" rx="42" ry="30" class="rad-ring-hover" style="animation-delay:0.75s"/>
+                    <!-- Ground -->
+                    <rect x="20" y="208" width="280" height="18" rx="2" fill="#8a7520" stroke="#c0a030" stroke-width="0.8" opacity="0.8"/>
+                    <text x="28" y="221" font-family="IBM Plex Mono" font-size="8" fill="#c0a030" opacity="0.7">GROUND PLANE</text>
+                    <!-- Substrate -->
+                    <rect x="20" y="158" width="280" height="52" rx="2" fill="url(#substrateGrad)" stroke="#1e5080" stroke-width="1"/>
+                    <text x="28" y="188" font-family="IBM Plex Mono" font-size="8" fill="#4a9fd4" opacity="0.8">&#949;&#7523; = 2.2  |  h = 0.8mm  |  Rogers RO4003C</text>
+                    <!-- Feed -->
+                    <rect x="153" y="156" width="14" height="56" fill="#c8a020" stroke="#d4b030" stroke-width="0.5"/>
+                    <line x1="160" y1="156" x2="160" y2="210" stroke="#00f7ff" stroke-width="2" stroke-dasharray="4 4" class="feed-pulse" opacity="0.8"/>
+                    <!-- Notches -->
+                    <rect x="128" y="143" width="22" height="18" fill="#0d2540"/>
+                    <rect x="170" y="143" width="22" height="18" fill="#0d2540"/>
+                    <!-- Patch -->
+                    <rect x="58" y="72" width="204" height="74" rx="2" fill="url(#patchGrad)" stroke="#d4a820" stroke-width="1.2"/>
+                    <line x1="58" y1="87" x2="262" y2="87" stroke="#d4a820" stroke-width="0.4" opacity="0.3"/>
+                    <line x1="58" y1="102" x2="262" y2="102" stroke="#d4a820" stroke-width="0.4" opacity="0.3"/>
+                    <line x1="58" y1="117" x2="262" y2="117" stroke="#d4a820" stroke-width="0.4" opacity="0.3"/>
+                    <line x1="58" y1="132" x2="262" y2="132" stroke="#d4a820" stroke-width="0.4" opacity="0.3"/>
+                    <text x="160" y="108" font-family="IBM Plex Mono" font-size="9" fill="#ffd060" text-anchor="middle" font-weight="600">PATCH (Cu)</text>
+                    <text x="160" y="122" font-family="IBM Plex Mono" font-size="7" fill="#c8a020" text-anchor="middle">L &#215; W = &#955;/2  @  60 GHz</text>
+                    <!-- Width annotation -->
+                    <line x1="58" y1="60" x2="262" y2="60" stroke="#00f7ff" stroke-width="0.8" opacity="0.6"/>
+                    <line x1="58" y1="56" x2="58" y2="64" stroke="#00f7ff" stroke-width="0.8" opacity="0.6"/>
+                    <line x1="262" y1="56" x2="262" y2="64" stroke="#00f7ff" stroke-width="0.8" opacity="0.6"/>
+                    <text x="160" y="54" font-family="IBM Plex Mono" font-size="7.5" fill="#00f7ff" text-anchor="middle" opacity="0.8">W = 2.5mm</text>
+                    <!-- Height annotation -->
+                    <line x1="278" y1="72" x2="278" y2="146" stroke="#00f7ff" stroke-width="0.8" opacity="0.6"/>
+                    <line x1="274" y1="72" x2="282" y2="72" stroke="#00f7ff" stroke-width="0.8" opacity="0.6"/>
+                    <line x1="274" y1="146" x2="282" y2="146" stroke="#00f7ff" stroke-width="0.8" opacity="0.6"/>
+                    <text x="296" y="107" font-family="IBM Plex Mono" font-size="7.5" fill="#00f7ff" text-anchor="middle" opacity="0.8">L=</text>
+                    <text x="296" y="118" font-family="IBM Plex Mono" font-size="7.5" fill="#00f7ff" text-anchor="middle" opacity="0.8">1.9mm</text>
+                    <!-- E-field -->
+                    <path d="M 78 156 Q 78 114 78 74" stroke="#7b2fff" stroke-width="1" fill="none" stroke-dasharray="3 3" opacity="0.5"/>
+                    <path d="M 242 156 Q 242 114 242 74" stroke="#7b2fff" stroke-width="1" fill="none" stroke-dasharray="3 3" opacity="0.5"/>
+                    <text x="46" y="118" font-family="IBM Plex Mono" font-size="7" fill="#7b2fff" opacity="0.7">E&#8597;</text>
+                    <text x="246" y="118" font-family="IBM Plex Mono" font-size="7" fill="#7b2fff" opacity="0.7">E&#8597;</text>
+                    <!-- SMA -->
+                    <circle cx="160" cy="248" r="10" fill="#555" stroke="#888" stroke-width="1"/>
+                    <circle cx="160" cy="248" r="5" fill="#c8a020"/>
+                    <text x="160" y="268" font-family="IBM Plex Mono" font-size="7.5" fill="#888" text-anchor="middle">SMA FEED PORT</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- ALL PROJECTS -->
+    <section id="work">
+        <div class="section-header">
+            <span class="section-tag">// KEY_PROJECTS</span>
+            <div class="section-line"></div>
+        </div>
+        <div class="projects-grid">
+            <div class="card">
+                <span class="card-num">01</span>
+                <span class="card-tag">RF Engineering</span>
+                <h3>60 GHz mmWave Antenna</h3>
+                <p>Designing high-gain V-band antenna for 5G/6G short-range wireless. Optimizing geometry for S&#8321;&#8321; &lt; &#8211;10 dB and max radiation efficiency. Analyzing far-field gain for directional stability in high-speed data links.</p>
+                <div class="card-tech"><span class="tech-pill">COMSOL Multiphysics</span><span class="tech-pill">FEM Analysis</span><span class="tech-pill">V-Band</span><span class="tech-pill">mmWave</span></div>
+            </div>
+            <div class="card">
+                <span class="card-num">02</span>
+                <span class="card-tag">Robotics Research</span>
+                <h3>Hand Exoskeleton AAN Control</h3>
+                <p>Synthesizing literature on Assist-as-Needed adaptive algorithms for soft robotic hand exoskeletons. Evaluating force-feedback and HRI safety protocols. Drafting review paper for peer-reviewed journal submission.</p>
+                <div class="card-tech"><span class="tech-pill">Control Theory</span><span class="tech-pill">Soft Robotics</span><span class="tech-pill">Rehabilitation HRI</span></div>
+            </div>
+            <div class="card">
+                <span class="card-num">03</span>
+                <span class="card-tag">Signal Processing</span>
+                <h3>Antenna Array Pattern Optimizer</h3>
+                <p>MATLAB tool processing 10,000+ array factor calculations per session. Applied Hamming, Chebyshev &amp; Taylor windowing to achieve 15&#8211;20 dB sidelobe reduction and 35% directivity improvement. Used by 20+ students.</p>
+                <div class="card-tech"><span class="tech-pill">MATLAB</span><span class="tech-pill">DSP</span><span class="tech-pill">GUI Development</span><span class="tech-pill">Windowing</span></div>
+            </div>
+            <div class="card">
+                <span class="card-num">04</span>
+                <span class="card-tag">Semiconductor Design</span>
+                <h3>CMOS Device Simulation @ 45nm</h3>
+                <p>NMOS/CMOS models with Sentaurus TCAD at 45nm node with 95% accuracy. Extracted V&#8348;&#8341; = 0.42V, DIBL = 85 mV/V. Cadence Virtuoso layout for 4-stage CMOS inverter chain with 12% propagation delay improvement.</p>
+                <div class="card-tech"><span class="tech-pill">Sentaurus TCAD</span><span class="tech-pill">Cadence Virtuoso</span><span class="tech-pill">Monte Carlo</span><span class="tech-pill">45nm</span></div>
+            </div>
+            <div class="card">
+                <span class="card-num">05</span>
+                <span class="card-tag">Embedded Systems</span>
+                <h3>8086 Microprocessor System</h3>
+                <p>Complete 8086 system with 20-bit address bus, 74HC373 latches, and 8255 PPI in Mode 0. Matrix keypad with &lt;50ms detection time and flicker-free 7-segment display at 100Hz. 95% bus utilization efficiency.</p>
+                <div class="card-tech"><span class="tech-pill">Proteus</span><span class="tech-pill">Assembly x86</span><span class="tech-pill">8255 PPI</span><span class="tech-pill">1MB Addressing</span></div>
+            </div>
+            <div class="card">
+                <span class="card-num">06</span>
+                <span class="card-tag">IoT / Cloud Systems</span>
+                <h3>Real-Time Environmental Monitor</h3>
+                <p>ESP32 IoT system monitoring temp, humidity, and PM2.5/PM10 with &#177;2% accuracy. MQTT QoS Level 1 with 99.8% delivery. ThingSpeak dashboard with 500+ daily data points. 72+ hours uninterrupted wireless operation.</p>
+                <div class="card-tech"><span class="tech-pill">ESP32</span><span class="tech-pill">MQTT</span><span class="tech-pill">ThingSpeak API</span><span class="tech-pill">Embedded C++</span></div>
+            </div>
+            <div class="card">
+                <span class="card-num">07</span>
+                <span class="card-tag">IEEE PDEU APS Society</span>
+                <h3>RF High-Frequency Design Lab</h3>
+                <p>Microstrip patch antenna in CST Studio Suite with &#8211;18 dB return loss at 2.4 GHz. S-parameter (S11, S21) measurements via VNA improved matching by 30%. Fabricated 3 PCB prototypes with &lt;2% defect rate.</p>
+                <div class="card-tech"><span class="tech-pill">CST Studio Suite</span><span class="tech-pill">VNA</span><span class="tech-pill">PCB Fabrication</span><span class="tech-pill">S-Parameters</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience">
+        <div class="section-header">
+            <span class="section-tag">// PROFESSIONAL_EXPERIENCE</span>
+            <div class="section-line"></div>
+        </div>
+        <div class="exp-card">
+            <div class="exp-header">
+                <div>
+                    <div class="exp-title">Embedded Systems &amp; IoT Engineering Intern</div>
+                    <div class="exp-company">LaunchED Global &#215; Unibotix Innovations Pvt. Ltd.</div>
+                </div>
+                <div class="exp-date">JUNE 2025 &#8211; JULY 2025</div>
+            </div>
+            <ul class="exp-bullets">
+                <li>Engineered Embedded C/C++ firmware for 3+ sensors (DHT22, ultrasonic, PIR) enabling automated control workflows with <strong>40% faster response times</strong>.</li>
+                <li>Architected end-to-end IoT infrastructure with MQTT protocol achieving <strong>99.5% uptime</strong> for cloud monitoring across 10+ concurrent devices.</li>
+                <li>Optimized FreeRTOS task scheduling, reducing system latency by <strong>25%</strong> via priority-based resource allocation.</li>
+                <li>Delivered production-ready industrial IoT pipeline with a cross-functional team of 5 engineers — <strong>2 weeks ahead of schedule</strong>.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills">
+        <div class="section-header">
+            <span class="section-tag">// TECHNICAL_SKILLS</span>
+            <div class="section-line"></div>
+        </div>
+        <div class="skills-grid" id="skillsGrid">
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">RF &amp; Antenna Design</span><span class="skill-pct">95%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.95"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">COMSOL / CST / FEM</span><span class="skill-pct">88%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.88"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">MATLAB / Simulink</span><span class="skill-pct">92%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.92"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">Embedded C / C++ / Python</span><span class="skill-pct">88%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.88"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">Robotics &amp; Control Systems</span><span class="skill-pct">82%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.82"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">Cadence Virtuoso / TCAD</span><span class="skill-pct">80%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.80"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">IoT / MQTT / ESP32</span><span class="skill-pct">90%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.90"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-header"><span class="skill-name">Verilog / VHDL / Assembly</span><span class="skill-pct">76%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-w="0.76"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACHIEVEMENTS -->
+    <section id="achievements">
+        <div class="section-header">
+            <span class="section-tag">// ACHIEVEMENTS</span>
+            <div class="section-line"></div>
+        </div>
+        <div class="achievement-card">
+            <div class="ach-badge">&#127947;</div>
+            <div>
+                <span class="ach-tag">MATLAB INNOVATION CHALLENGE &#183; PDEU &#183; FEB 2024</span>
+                <div class="ach-title">1st Place &#8212; "Code the Future" among 50+ participants</div>
+                <p class="ach-desc">Formulated a real-time solar panel optimization system using MATLAB/Simulink with Perturb &amp; Observe MPPT algorithm, increasing power extraction efficiency by <strong style="color:var(--gold)">23%</strong>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CERTIFICATIONS -->
+    <section id="certs">
+        <div class="section-header">
+            <span class="section-tag">// CERTIFICATIONS</span>
+            <div class="section-line"></div>
+        </div>
+        <div class="certs-row">
+            <div class="cert-item">
+                <span class="cert-org">NPTEL</span>
+                <div class="cert-name">Industrial Robotics: Theories for Implementation</div>
+                <div class="cert-date">July &#8211; November 2025</div>
+            </div>
+            <div class="cert-item">
+                <span class="cert-org">NPTEL</span>
+                <div class="cert-name">Collaborative Robots</div>
+                <div class="cert-date">February &#8211; April 2025</div>
+            </div>
+            <div class="cert-item">
+                <span class="cert-org">NPTEL</span>
+                <div class="cert-name">Robotics</div>
+                <div class="cert-date">July &#8211; September 2024</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DOCUMENTATION -->
+    <section id="resume" style="text-align:center; padding-bottom:60px;">
+        <div class="section-header" style="justify-content:center;">
+            <span class="section-tag">// DOCUMENTATION</span>
+        </div>
+        <h2 style="font-family:'Orbitron',monospace;color:#fff;font-size:1.8rem;margin-bottom:16px;">Full Credentials Available</h2>
+        <p style="color:var(--muted);margin-bottom:32px;font-size:0.95rem;">Access complete academic records, NPTEL certifications, and technical mastery.</p>
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+            <a href="https://github.com/DitanshiDesai/ditanshi-desai" class="btn" target="_blank">
+                VIEW REPOSITORY
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13M13 7L8 2M13 7L8 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="https://linkedin.com/in/ditanshi-desai" class="btn btn-ghost" target="_blank">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                LINKEDIN PROFILE
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div>
+            <div class="footer-name">DITANSHI DESAI</div>
+            <div class="footer-sub">PDEU &#183; ECE &#183; 20HS301P &#183; CGPA 9.22</div>
+        </div>
+        <div class="footer-links">
+            <a href="mailto:ditanshidesai18@gmail.com">EMAIL</a>
+            <a href="https://linkedin.com/in/ditanshi-desai" target="_blank">LINKEDIN</a>
+            <a href="https://github.com/DitanshiDesai/ditanshi-desai" target="_blank">GITHUB</a>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+// Custom Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function animCursor(){
+    rx+=(mx-rx)*0.15; ry+=(my-ry)*0.15;
+    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(animCursor);
+})();
+
+// Typewriter
+const phrases=["Embedded Systems Specialist","RF Engineering Enthusiast","Robotics Researcher","mmWave Antenna Designer","IoT Systems Architect"];
+let wi=0,ci=0,deleting=false;
+const tw=document.getElementById('tw-text');
+function type(){
+    const word=phrases[wi];
+    if(!deleting&&ci<=word.length){tw.textContent=word.substring(0,ci++);setTimeout(type,90);}
+    else if(!deleting&&ci>word.length){deleting=true;setTimeout(type,2200);}
+    else if(deleting&&ci>=0){tw.textContent=word.substring(0,ci--);setTimeout(type,45);}
+    else{deleting=false;wi=(wi+1)%phrases.length;setTimeout(type,400);}
+}
+type();
+
+// Robot Eye Tracking
+const eyeL=document.getElementById('eyeL');
+const eyeR=document.getElementById('eyeR');
+document.addEventListener('mousemove',e=>{
+    const cx=window.innerWidth/2,cy=window.innerHeight/2;
+    const dx=(e.clientX-cx)/cx,dy=(e.clientY-cy)/cy;
+    eyeL.setAttribute('cx',119+dx*2.5); eyeL.setAttribute('cy',83+dy*2.5);
+    eyeR.setAttribute('cx',161+dx*2.5); eyeR.setAttribute('cy',83+dy*2.5);
+});
+
+// Interactive Patch Antenna — proximity radiation
+const patchSvg=document.getElementById('patchSvg');
+document.addEventListener('mousemove',e=>{
+    const rect=patchSvg.getBoundingClientRect();
+    const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    const dist=Math.sqrt((e.clientX-cx)**2+(e.clientY-cy)**2);
+    const threshold=280;
+    if(dist<threshold){
+        patchSvg.classList.add('active');
+        const intensity=Math.max(0,1-dist/threshold);
+        patchSvg.style.filter=`drop-shadow(0 0 ${20+intensity*44}px rgba(0,247,255,${0.25+intensity*0.6}))`;
+    } else {
+        patchSvg.classList.remove('active');
+        patchSvg.style.filter='drop-shadow(0 0 16px rgba(0,247,255,0.2))';
+    }
+});
+
+// Particle Background
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize(); window.addEventListener('resize',resize);
+const particles=Array.from({length:60},()=>({
+    x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+    vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,
+    r:Math.random()*1.2+0.4
+}));
+function drawParticles(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='rgba(0,247,255,0.5)';
+    particles.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>canvas.width)p.vx*=-1;
+        if(p.y<0||p.y>canvas.height)p.vy*=-1;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+    });
+    ctx.strokeStyle='rgba(0,247,255,0.07)';ctx.lineWidth=0.6;
+    for(let i=0;i<particles.length;i++)
+        for(let j=i+1;j<particles.length;j++){
+            const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+            if(Math.sqrt(dx*dx+dy*dy)<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.stroke();}
+        }
+    requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// Skill Bars on Scroll
+const fills=document.querySelectorAll('.skill-fill');
+fills.forEach(f=>f.style.width='0%');
+const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+        if(e.isIntersecting){
+            fills.forEach(f=>{f.style.width=(parseFloat(f.dataset.w)*100)+'%';});
+            obs.disconnect();
+        }
+    });
+},{threshold:0.3});
+obs.observe(document.getElementById('skillsGrid'));
+</script>
+</body>
+</html>
