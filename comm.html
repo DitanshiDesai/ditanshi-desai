@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ditanshi Desai | Interactive Portfolio</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #111827;
+            --accent-cyan: #00e5ff;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; }
+
+        /* Abstract Background */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at 15% 50%, rgba(0, 229, 255, 0.04) 0%, transparent 50%),
+                        radial-gradient(circle at 85% 30%, rgba(0, 229, 255, 0.02) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; width: 100%; background: rgba(10, 14, 23, 0.9);
+            backdrop-filter: blur(10px); padding: 15px 0; z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;
+        }
+        nav a { color: var(--text-main); text-decoration: none; margin: 0 15px; font-weight: 500; transition: color 0.3s; }
+        nav a:hover { color: var(--accent-cyan); }
+
+        /* Header */
+        header { text-align: center; padding: 150px 20px 80px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        h1 { font-size: 3.5rem; letter-spacing: 2px; margin-bottom: 10px; color: #ffffff; }
+        
+        /* Typewriter Cursor */
+        .headline { font-size: 1.3rem; color: var(--accent-cyan); margin-bottom: 20px; font-weight: 300; min-height: 30px; }
+        .cursor { display: inline-block; width: 3px; background-color: var(--accent-cyan); animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 60px 20px; }
+        h2 { font-size: 2rem; margin-bottom: 30px; border-left: 4px solid var(--accent-cyan); padding-left: 15px; }
+        p { color: var(--text-muted); margin-bottom: 15px; }
+
+        /* Filtering System */
+        .filter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .filter-btn {
+            background: transparent; border: 1px solid var(--accent-cyan); color: var(--text-main);
+            padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease;
+        }
+        .filter-btn:hover, .filter-btn.active { background: var(--accent-cyan); color: var(--bg-dark); font-weight: bold; }
+
+        /* Projects Grid */
+        .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .projects-grid { grid-template-columns: 1fr; } }
+        
+        .project-card {
+            background: var(--bg-card); padding: 30px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05); transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .project-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 229, 255, 0.1); border-color: rgba(0, 229, 255, 0.3); }
+        .project-card h3 { color: #ffffff; margin-bottom: 10px; font-size: 1.2rem; }
+        .tag { display: inline-block; background: rgba(0,229,255,0.1); color: var(--accent-cyan); padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 15px; }
+
+        /* Skills */
+        .skills-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill-tag { background: rgba(255, 255, 255, 0.05); padding: 8px 15px; border-radius: 4px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1); transition: border-color 0.3s; cursor: default; }
+        .skill-tag:hover { border-color: var(--accent-cyan); }
+
+        footer { text-align: center; padding: 50px 20px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 50px; }
+        footer a { color: var(--accent-cyan); text-decoration: none; margin: 0 10px; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+    </nav>
+
+    <header id="home">
+        <h1>DITANSHI DESAI</h1>
+        <div class="headline">
+            <span id="typewriter"></span><span class="cursor">&nbsp;</span>
+        </div>
+        <p>Architecting intelligent hardware and high-frequency communication systems.</p>
+    </header>
+
+    <div class="container">
+        <section id="about">
+            <h2>About Me</h2>
+            <p>I am a results-driven Electronics and Communication Engineering undergraduate at Pandit Deendayal Energy University (Expected Graduation: 2027), currently holding a 9.22/10 CGPA.</p>
+            <p>I specialize in architecting, integrating, and validating complex hardware-software systems. With extensive hands-on experience in firmware development, microcontroller programming, and advanced simulation tools, I am eager to contribute to innovative technology solutions.</p>
+        </section>
+
+        <section id="projects" style="margin-top: 80px;">
+            <h2>The Nexus: My Work</h2>
+            
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="rf">RF & Antennas</button>
+                <button class="filter-btn" data-filter="robotics">Robotics & IoT</button>
+            </div>
+
+            <div class="projects-grid">
+                <div class="project-card" data-category="rf">
+                    <span class="tag">RF Engineering</span>
+                    <h3>60 GHz mmWave Antenna</h3>
+                    <p>Designing a high-gain millimeter-wave antenna operating at 60 GHz (V-band) for 5G/6G short-range wireless applications using COMSOL Multiphysics.</p>
+                </div>
+
+                <div class="project-card" data-category="robotics">
+                    <span class="tag">Robotics</span>
+                    <h3>Exoskeleton Control Systems</h3>
+                    <p>Drafting a comprehensive review paper summarizing state-of-the-art actuator designs and adaptive "Assist-as-Needed" control algorithms for hand exoskeletons.</p>
+                </div>
+
+                <div class="project-card" data-category="rf">
+                    <span class="tag">Signal Processing</span>
+                    <h3>Antenna Array Pattern Optimization</h3>
+                    <p>Built an interactive MATLAB tool processing 10,000+ array factor calculations to analyze radiation patterns, securing a 15-20 dB sidelobe level reduction.</p>
+                </div>
+
+                <div class="project-card" data-category="robotics">
+                    <span class="tag">Embedded IoT</span>
+                    <h3>Real-Time Environmental Monitor</h3>
+                    <p>Constructed a standalone IoT system using ESP32 and MQTT protocol. Attained uninterrupted wireless operation for 72+ hours with 99.8% message delivery success.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" style="margin-top: 80px;">
+            <h2>Technical Arsenal</h2>
+            <div class="skills-container">
+                <span class="skill-tag">Embedded C & C++</span>
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">Verilog & VHDL</span>
+                <span class="skill-tag">CST Studio Suite</span>
+                <span class="skill-tag">Cadence Virtuoso</span>
+                <span class="skill-tag">MATLAB & Simulink</span>
+                <span class="skill-tag">Vector Network Analyzer</span>
+                <span class="skill-tag">ESP32 & NodeMCU</span>
+                <span class="skill-tag">MQTT & FreeRTOS</span>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Based in Ahmedabad, Gujarat | +91 96246 70002</p>
+        <div style="margin-top: 15px;">
+            <a href="mailto:ditanshidesai18@gmail.com">ditanshidesai18@gmail.com</a> | 
+            <a href="https://linkedin.com/in/ditanshi-desai" target="_blank">LinkedIn Profile</a>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Typewriter Effect
+            const title = "Embedded Systems & RF Engineering Specialist";
+            const typeElement = document.getElementById('typewriter');
+            let index = 0;
+            
+            function type() {
+                if(index < title.length) {
+                    typeElement.innerHTML += title.charAt(index);
+                    index++;
+                    setTimeout(type, 60); // typing speed
+                }
+            }
+            // Start typing after a short delay
+            setTimeout(type, 500);
+
+            // 2. Project Filtering Logic
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const projects = document.querySelectorAll('.project-card');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    
+                    const filterValue = btn.getAttribute('data-filter');
+                    
+                    projects.forEach(project => {
+                        const category = project.getAttribute('data-category');
+                        
+                        if(filterValue === 'all' || filterValue === category) {
+                            project.style.display = 'block';
+                            setTimeout(() => {
+                                project.style.opacity = '1';
+                                project.style.transform = 'scale(1)';
+                            }, 50);
+                        } else {
+                            project.style.opacity = '0';
+                            project.style.transform = 'scale(0.95)';
+                            setTimeout(() => {
+                                project.style.display = 'none';
+                            }, 300); // Wait for transition to finish
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
